@@ -3,18 +3,25 @@ const firstName = document.getElementById("first-name");
 const lastName = document.getElementById("last-name");
 const doggoName = document.getElementById("doggo-name");
 const doggoBreed = document.getElementById("doggo-breed");
+const email = document.getElementById("email");
+const confirmEmail = document.getElementById("confirm-email");
 const password = document.getElementById("password");
 const confirmPassword = document.getElementById("confirm-password");
 
+const cookieBanner = document.getElementById("cookie-banner");
 const successModal = document.getElementById("modal-success");
+const failModal = document.getElementById("modal-fail");
 
 initFormListeners(form);
+initFormSubmit(form);
 initModals(successModal);
+initModalsFail(failModal);
 initCookieBanner();
 populateDoggoBreedSelect();
 
+// TO DO : Idéalement scinder la fonction Submit ici
 function initFormListeners(formToInit) {
-  formToInit.addEventListener("submit", e => {
+  formToInit.addEventListener("submit", (e) => {
     e.preventDefault();
     if (validateAllInputs()) {
       displaySuccessModal();
@@ -28,52 +35,79 @@ function initModals(successModalToInit) {
   for (let el of closeButtons) {
     el.onclick = function () {
       successModalToInit.style.display = "none";
-    }
+    };
   }
 
   window.onclick = function (event) {
     if (event.target == successModal) {
       successModalToInit.style.display = "none";
     }
-  }
+  };
 }
 
+// TO DO : Utiliser une seule et même fonction "initModals" pour les deux modals
+function initModalsFail(failModalToInit) {
+  let closeButtons = document.getElementsByClassName("modal__close");
+
+  for (let el of closeButtons) {
+    el.onclick = function () {
+      failModalToInit.style.display = "none";
+    };
+  }
+
+  window.onclick = function (event) {
+    if (event.target == failModal) {
+      failModalToInit.style.display = "none";
+    }
+  };
+}
+
+/* COOKIES */
+/* TO DO : Forcer que le check se fasse bien avant que la page load pour éviter que l'on voit brièvement
+la bannière apparâitre lors du refresh quand les cookies ont déjà été acceptés */
 function initCookieBanner() {
-  let acceptCookiesButton = document.querySelector("#cookie-banner .button__primary");
-  acceptCookiesButton.onclick = function () {
-    let cookieBanner = document.getElementById("cookie-banner");
+  console.log(window.localStorage.getItem("cookies-accepted"));
 
+  if (window.localStorage.getItem("cookies-accepted") == "1") {
     cookieBanner.style.display = "none";
-  }
+  } else {
+    let acceptCookiesButton = cookieBanner.querySelector(".button__primary");
+    acceptCookiesButton.onclick = function () {
+      cookieBanner.style.display = "none";
+      window.localStorage.setItem("cookies-accepted", "1");
+    };
 
-  let rejectCookiesButton = document.querySelector("#cookie-banner .button__secondary");
-  rejectCookiesButton.onclick = function () {
-    let cookieBanner = document.getElementById("cookie-banner");
-    let submitButton = document.querySelector("form button");
+    //Reject cookies
+    let rejectCookiesButton = cookieBanner.querySelector(".button__secondary");
+    rejectCookiesButton.onclick = function () {
+      let submitButton = form.querySelector("button");
 
-    submitButton.disabled = true;
-    cookieBanner.style.display = "none";
+      submitButton.disabled = true;
+      cookieBanner.style.display = "none";
+      window.localStorage.setItem("cookies-accepted", "0");
+    };
   }
 }
 
+// Obtenir une liste de race de chien
 function populateDoggoBreedSelect() {
-  fetch('https://api.devnovatize.com/frontend-challenge')
-    .then(
-      function (response) {
-        if (!response.ok) {
-          console.log('Error calling external API. Status Code: ' +
-            response.status);
-          return;
-        }
-
-        response.json().then(function (data) {
-          var selectElem = document.getElementById("doggo-breed");
-          fillSelectElem(selectElem, data);
-        });
+  fetch("https://api.devnovatize.com/frontend-challenge")
+    .then(function (response) {
+      console.log(response);
+      if (!response.ok) {
+        console.log(
+          "Error calling external API. Status Code: " + response.status
+        );
+        return;
       }
-    )
+
+      response.json().then(function (data) {
+        var selectElem = document.getElementById("doggo-breed");
+        fillSelectElem(selectElem, data.sort());
+      });
+    })
     .catch(function (err) {
-      console.log('Fetch Error : ', err);
+      console.log("Fetch Error : ", err);
     });
 }
 
@@ -83,53 +117,149 @@ function fillSelectElem(selectElem, dataToFill) {
     optionElem.innerHTML = element;
 
     if (element.toLowerCase() === "labernese") {
-      optionElem.setAttribute("selected", "selected")
+      optionElem.setAttribute("selected", "selected");
     }
     selectElem.appendChild(optionElem);
   });
 }
 
+// Créer le profil
+
+function initFormSubmit(form) {
+  form.addEventListener("submit", function (e) {
+    if (validateAllInputs()) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const plainFormData = Object.fromEntries(formData.entries());
+
+      fetch("https://api.devnovatize.com/frontend-challenge", {
+        method: "POST",
+        body: JSON.stringify(plainFormData),
+      })
+        .then(function (response) {
+          console.log(response);
+          if (!response.ok) {
+            console.log(
+              "Error calling external API. Status Code: " + response.status
+            );
+            return;
+          }
+        })
+        .catch(function (err) {
+          console.log("Fetch Error : ", err);
+          const message = getElementsByClassName("err-msg").innertHTML;
+          message = err;
+        });
+    }
+    return;
+  });
+}
+
+// Validation Form
 function validateAllInputs() {
-  let allInputValids = validateInput(firstName) &&
+  let allInputValids =
+    validateInput(firstName) &&
     validateInput(lastName) &&
     validateInput(doggoName) &&
     validateInput(doggoBreed) &&
+    validateInput(email, validateEmail) &&
+    validateInput(confirmEmail, function (value) {
+      return value === email.value.trim();
+    }) &&
     validateInput(password, validatePassword) &&
-    validateInput(confirmPassword, function (value) { return value === password.value.trim(); });
+    validateInput(confirmPassword, function (value) {
+      return value === password.value.trim();
+    });
+  /*tetint*/
+  //console.log("FName = " + validateInput(firstName));
+  //console.log("LName = " + validateInput(lastName));
+  //console.log("doggoName = " + validateInput(doggoName));
+  //console.log("doggoBreed = " + validateInput(doggoBreed));
+  //console.log("Validate input email = " + validateInput(email, validateEmail));
+  /*console.log(
+    "Validate input confirmEmail = " +
+      validateInput(confirmEmail, function (value) {
+        return value === email.value.trim();
+      })
+  );*/
+  console.log(
+    "Validate input password = " + validateInput(password, validatePassword)
+  );
+  console.log(
+    "validate input COnfirm Pass = " +
+      validateInput(confirmPassword, function (value) {
+        return value === password.value.trim();
+      })
+  );
+  console.log("allInputValids = " + allInputValids);
 
   return allInputValids;
 }
 
 function validateInput(element, validationFunction) {
   let inputValid = isInputValid(element, validationFunction);
-
+  console.log("validate Input = " + isInputValid(password, validatePassword));
   inputValid ? setSuccessInput(element) : setErrorInput(element);
-
-  return inputValid
+  return inputValid;
 }
 
 function isInputValid(element, validationFunction) {
   let value = element.value.trim();
-
   return !(value === "" || (validationFunction && !validationFunction(value)));
+}
+
+function validateEmail(email) {
+  let re =
+    /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; //reg exp from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
+  console.log("validateEmail : " + re.test(email));
+  return re.test(String(email));
 }
 
 function validatePassword(password) {
   let re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/; // 8 chars, lower, upper and digits
+  console.log("validate Password = " + re.test(String(password))); // Retourne toujour false
   return re.test(String(password));
 }
 
 function setErrorInput(input) {
   const formControl = input.parentElement.parentElement;
+  formControl.classList.remove("success");
   formControl.classList.add("error");
 }
 
 function setSuccessInput(input) {
   const formControl = input.parentElement.parentElement;
+  formControl.classList.remove("error");
   formControl.classList.add("success");
 }
 
 function displaySuccessModal() {
   var modal = document.getElementById("modal-success");
   modal.style.display = "block";
+}
+function displayFailModal() {
+  var modal = document.getElementById("modal-fail");
+  modal.style.display = "block";
+}
+
+// Toggle Navigation
+const hamburger = document.querySelector(".hamburger");
+const menu = document.querySelector(".menu");
+
+hamburger.addEventListener("click", toggleNav);
+
+function toggleNav() {
+  hamburger.classList.toggle("active");
+  menu.classList.toggle("active");
+}
+
+/* CLose nav when a link is clicked */
+const navLink = document.querySelectorAll(".nav-link");
+
+navLink.forEach((n) => n.addEventListener("click", closeMenu));
+
+function closeMenu() {
+  hamburger.classList.remove("active");
+  menu.classList.remove("active");
 }

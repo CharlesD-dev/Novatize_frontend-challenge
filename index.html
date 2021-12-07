@@ -5,6 +5,8 @@
   <link rel="stylesheet" href="src/styles.css" />
   <link rel="shortcut icon" type="image/png"
     href="https://novatize.com/app/themes/novatize/dist/images/favicon-32x32.png" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+    integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
   <title>Novatize Frontend Challenge</title>
   <meta charset="UTF-8" />
 </head>
@@ -12,28 +14,44 @@
 <body>
   <header class="header">
     <ul class="menu">
-      <li><a href="#">Best Dogs</a></li>
-      <li><a href="#">Best Cats</a></li>
-      <li><a href="#">About Us</a></li>
-      <li><a href="#">Log In</a></li>
+      <li class="nav-link"><a href="#">Best Dogs</a></li>
+      <li class="nav-link"><a href="#">Best Cats</a></li>
+      <li class="nav-link"><a href="#">About Us</a></li>
+      <li class="nav-link"><a href="#">Log In</a></li>
     </ul>
+    <div class="hamburger">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </div>
+    <!--<a href="#" class="icon" onclick="toggleNav()"><i class="fa fa-bars"></i></a>-->
   </header>
-
   <div class="main">
+    <!-- Modal Success -->
     <div id="modal-success" class="modal">
       <div class="modal__content">
         <span class="modal__close">&times;</span>
         <p class="h2">&#x1F389; Profile successfully created. &#x1F389;</p>
       </div>
     </div>
+    <!-- Modal Fail -->
+    <div id="modal-fail" class="modal">
+      <div class="modal__content">
+        <span class="modal__close">&times;</span>
+        <p class="h2">&#x1F389; An error occured while creating profile &#x1F389;</p> <!-- TO DO : Changer emoticone -->
+        <p class="h2 err-msg"></p>
+      </div>
+    </div> <!-- Bannière -->
     <div id="cookie-banner" class="cookie-banner">
       <div class="cookie-banner__content">
         <p class="h2">&#x1F36A; This website uses cookies &#x1F36A;</p>
         <p>We and our partners use cookies (and similar technologies) and process unique identifiers and browsing data
           to make our site and services work, to help us improve them and for the purposes listed below. We and our
           partners may process your personal data based on your consent and our legitimate interests.</p>
-        <button class="button button__primary">Accept</button>
-        <button class="button button__secondary">Reject</button>
+        <div class="cookie-banner__action">
+          <button class="button button__primary">Accept</button>
+          <button class="button button__secondary">Reject</button>
+        </div>
       </div>
     </div>
 
@@ -57,7 +75,9 @@
       <div class="profile__header">
         <h2>Create your profile</h2>
       </div>
-      <form class="form" name="contact-form" id="contact-form">
+      <!-- FORM -->
+      <form class="form" novalidate name="contact-form" id="contact-form">
+        <!-- novalidate attribut to simplify testing -->
         <div class="row">
           <div class="form__control column">
             <label>First name</label>
@@ -96,6 +116,28 @@
             </select>
           </div>
         </div>
+        <!-- Email -->
+        <div class="row">
+          <div class="form__control column">
+            <label>Email</label>
+            <div class="form__control-input">
+              <input type="email" name="email" id="email" />
+              <i class="fa fa-check-circle"></i>
+              <i class="fa fa-exclamation-circle"></i>
+            </div>
+            <small>Invalid email</small>
+          </div>
+          <div class="form__control column">
+            <label>Confirm Email</label>
+            <div class="form__control-input">
+              <input type="email" name="confirm-email" id="confirm-email" />
+              <i class="fa fa-check-circle"></i>
+              <i class="fa fa-exclamation-circle"></i>
+            </div>
+            <small>Email not equal</small>
+          </div>
+        </div>
+        <!-- Password -->
         <div class="row">
           <div class="form__control column">
             <label>Password</label>
@@ -116,7 +158,7 @@
             <small>Passwords not equal</small>
           </div>
         </div>
-        <button class="button button__primary">Submit</button>
+        <button class="button button__primary" type="submit">Submit</button>
       </form>
     </div>
   </div>
