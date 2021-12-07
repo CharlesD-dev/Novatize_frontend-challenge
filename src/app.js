@@ -66,8 +66,6 @@ function initModalsFail(failModalToInit) {
 /* TO DO : Forcer que le check se fasse bien avant que la page load pour éviter que l'on voit brièvement
 la bannière apparâitre lors du refresh quand les cookies ont déjà été acceptés */
 function initCookieBanner() {
-  console.log(window.localStorage.getItem("cookies-accepted"));
-
   if (window.localStorage.getItem("cookies-accepted") == "1") {
     cookieBanner.style.display = "none";
   } else {
@@ -93,7 +91,6 @@ function initCookieBanner() {
 function populateDoggoBreedSelect() {
   fetch("https://api.devnovatize.com/frontend-challenge")
     .then(function (response) {
-      console.log(response);
       if (!response.ok) {
         console.log(
           "Error calling external API. Status Code: " + response.status
@@ -171,35 +168,11 @@ function validateAllInputs() {
     validateInput(confirmPassword, function (value) {
       return value === password.value.trim();
     });
-  /*tetint*/
-  //console.log("FName = " + validateInput(firstName));
-  //console.log("LName = " + validateInput(lastName));
-  //console.log("doggoName = " + validateInput(doggoName));
-  //console.log("doggoBreed = " + validateInput(doggoBreed));
-  //console.log("Validate input email = " + validateInput(email, validateEmail));
-  /*console.log(
-    "Validate input confirmEmail = " +
-      validateInput(confirmEmail, function (value) {
-        return value === email.value.trim();
-      })
-  );*/
-  console.log(
-    "Validate input password = " + validateInput(password, validatePassword)
-  );
-  console.log(
-    "validate input COnfirm Pass = " +
-      validateInput(confirmPassword, function (value) {
-        return value === password.value.trim();
-      })
-  );
-  console.log("allInputValids = " + allInputValids);
-
   return allInputValids;
 }
 
 function validateInput(element, validationFunction) {
   let inputValid = isInputValid(element, validationFunction);
-  console.log("validate Input = " + isInputValid(password, validatePassword));
   inputValid ? setSuccessInput(element) : setErrorInput(element);
   return inputValid;
 }
@@ -212,13 +185,11 @@ function isInputValid(element, validationFunction) {
 function validateEmail(email) {
   let re =
     /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; //reg exp from https://www.w3.org/TR/2012/WD-html-markup-20120329/input.email.html
-  console.log("validateEmail : " + re.test(email));
   return re.test(String(email));
 }
 
 function validatePassword(password) {
   let re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/; // 8 chars, lower, upper and digits
-  console.log("validate Password = " + re.test(String(password))); // Retourne toujour false
   return re.test(String(password));
 }
 
